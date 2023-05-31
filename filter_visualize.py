@@ -8,6 +8,9 @@ import plotly.graph_objects as go
 def sdsi(dw,re,rd,mu2):
     return 4*mu2*re*rd/(dw**4 + dw**2*((1+rd)**2+(1+re)**2-2*mu2)+(mu2+(1+re)*(1+rd))**2)
 
+def circle_equation(x, radius):
+    return np.sqrt(radius - x * x)
+
 # Create the Dash application
 app = dash.Dash(__name__)
 
@@ -29,15 +32,25 @@ app.layout = html.Div(
                 html.Label("S : "),
                 dcc.Input(id="svalue", type="number", min=-0.9999999, max=1, value=0),
                 html.Br(),html.Br(),
-                html.Div(dcc.Slider(id="svalue_slider",step=0.001,min=-0.999,max=1,value=0,marks={-0.999:"-1",0:"0",1:"1"},updatemode="drag"),style={'width': '30%'}),
+                html.Div(dcc.Slider(id="svalue_slider",step=0.001,min=-0.999,max=1,value=0,marks={-0.999:"-1",0:"0",1:"1"},updatemode="drag"),style={'width': '90%'}),
                 html.Label("M: "),
                 dcc.Input(id="mvalue", type="number", min=-0.9999999, max=1, value=0),
                 html.Br(),html.Br(),
-                html.Div(dcc.Slider(id="mvalue_slider",step=0.001,min=-0.999,max=1,value=0,marks={-0.999:"-1",0:"0",1:"1"},updatemode="drag"),style={'width': '30%'}),
+                html.Div(dcc.Slider(id="mvalue_slider",step=0.001,min=-0.999,max=1,value=0,marks={-0.999:"-1",0:"0",1:"1"},updatemode="drag"),style={'width': '90%'}),
+                html.Br(),html.Br(),
                 html.Div(id="check_s_m_value"),
-            ], style={'padding': 20, 'flex': 1}),
+                html.P("Valid range for M is: "),
+                html.Div(id="rangeFORm"),
+                html.Br(),
+                html.Div(id="IL_current"),
+            ], style={'padding': 15, 'flex': 3}),
 
             html.Div(children=[
+                dcc.Graph(id="spectrum"),
+            ], style={'padding': 5, 'flex': 5}),
+
+            html.Div(children=[
+                #dcc.Graph(id="illustration"),
                 html.Label("re: "),
                 dcc.Input(id="revalue", type="number"),
                 html.Br(),html.Br(),html.Br(),
@@ -46,22 +59,31 @@ app.layout = html.Div(
                 html.Br(),html.Br(),html.Br(),
                 html.Label("µ^2: "),
                 dcc.Input(id="mu2value", type="number"),
-            ], style={'padding': 20, 'flex': 1})
+                dcc.Graph(id="illustration"),
+            ], style={'padding': 15, 'flex': 2}),
         ], style={'display': 'flex', 'flex-direction': 'row'}),
 
-        html.Div(style={'display': 'flex', 'justify-content': 'center'},children=[dcc.Graph(id="spectrum",style={'width': '60%'})]),
-        #html.Label("Best M for the above given S value is"),
-        # html.Div(id="optimized_m_value"),
-        #html.Br(),
-        html.P("For above chosen S & M values (blue),"),
-        html.Div(id="IL_current", style={'textAlign': 'center'}),
-        html.P("For the S value above, best M is (red):"),
-        html.Div(id="optimized_m_value", style={'textAlign': 'center'}),
-        html.P("and it gives"),
-        html.Div(id="IL_best_M", style={'textAlign': 'center'}),
-        # html.P("For the specified Δω/ro, lowest IL comes from"),
-        # html.Div(id="optimized_s_value", style={'textAlign': 'center'}),
-        # html.Div(id="IL_best_S", style={'textAlign': 'center'}),
+        html.H3("Optimization Analysis"),
+        html.Div([
+            html.Div(children=[
+                html.P("For the S value above, best M which gives lowes insertion loss (red curve) is:"),
+                html.Div(id="optimized_m_value", style={'textAlign': 'center'}),
+                html.P("and its corresponding re, rd, µ^2 are"),
+                html.Div(id="optimized_m_rerd", style={'textAlign': 'center'}),
+                html.P("and it gives"),
+                html.Div(id="IL_best_M", style={'textAlign': 'center'}),
+            ], style={'padding': 15, 'flex': 1}),
+
+            html.Div(children=[
+                html.P("For the specified Δω/ro, lowest IL comes from"),
+                html.Div(id="optimized_s_value", style={'textAlign': 'center'}),
+                html.Div(id="approximateORnot"),
+                html.P("Its corresponding re, rd, µ^2 are"),
+                html.Div(id="optimized_s_rerd", style={'textAlign': 'center'}),
+                html.P("and it gives"),
+                html.Div(id="IL_best_S", style={'textAlign': 'center'}),
+            ], style={'padding': 15, 'flex': 1}),
+        ], style={'display': 'flex', 'flex-direction': 'row'}),
 
         html.Br(),html.Br(),html.Br(),html.Br()
     ],
@@ -79,8 +101,8 @@ def update_contour_plot(n_clicks,w):
         return go.Figure()
 
     # Generate S and M values
-    s = np.linspace(-0.999999, 1, 500)
-    m = np.linspace(-1, 1, 500)
+    s = np.linspace(-0.999999, 1, 1000)
+    m = np.linspace(-1, 1, 1000)
     S, M = np.meshgrid(s, m)
     
     # Compute the D function
@@ -107,7 +129,7 @@ def update_contour_plot(n_clicks,w):
         z=D,
         #colorscale="",
         contours=dict(start=0, end=np.nanmax(D), size = contourSize),
-        hovertemplate="S=%{x:.3f}<br>M=%{y:.3f}<br>D=%{z:.3f}<extra></extra>",
+        hovertemplate="S=%{x:.4f}<br>M=%{y:.4f}<br>D=%{z:.4f}<extra></extra>",
         #showscale=False
     )
     
@@ -126,10 +148,17 @@ def update_contour_plot(n_clicks,w):
 # Define the callback function to update the spectrum
 @app.callback(
     Output("check_s_m_value", "children"),
+    Output("rangeFORm", "children"),
     Output("IL_current", "children"),
     Output("IL_best_M","children"),
+    Output("IL_best_S","children"),
     Output("spectrum", "figure"),
+    Output("illustration", "figure"),
     Output("optimized_m_value", "children"),
+    Output("optimized_m_rerd", "children"), # gives the sentence containing re, rd, mu^2
+    Output("optimized_s_value", "children"),
+    Output("approximateORnot", "children"), # if S = -1, take S = -0.9
+    Output("optimized_s_rerd", "children"), # gives the sentence containing re, rd, mu^2
     Output("svalue", "value"),
     Output("mvalue", "value"),
     Output("svalue_slider", "value"),
@@ -228,39 +257,93 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
         # Compute the transfer function
         transf = sdsi(dwrange,re,rd,mu2)
         insertionloss = 10.0*math.log10(sdsi(0.0,re,rd,mu2))
-        # Compute the optimized M and transfer function
-        optimized_m2 = -(s-1)/2 + 2/(w*w)*(s-1+math.sqrt(2*s*s+2)) - 2/w*math.sqrt(s-1+math.sqrt(2*s*s+2))
-        if optimized_m2 > 0:
-            optimized_m = math.sqrt(optimized_m2)
-        else:
-            optimized_m = 0
-        optimized_re = (1+optimized_m) * w / (2*math.sqrt(s-1+math.sqrt(2*s*s+2))) - 1
-        optimized_rd = (1-optimized_m) * w / (2*math.sqrt(s-1+math.sqrt(2*s*s+2))) - 1
-        optimized_mu2 = w/2 * math.sqrt(w*w/2 + (2+optimized_re+optimized_rd)**2) - w*w/4 - (1+optimized_re)*(1+optimized_rd)
-        optimized_transf = sdsi(dwrange,optimized_re,optimized_rd,optimized_mu2)
-        bestMinsertionloss = 10.0*math.log10(sdsi(0,optimized_re,optimized_rd,optimized_mu2))
     else:
-        check_s_m = 'INVALID! No spectrum is generated.'
+        check_s_m = '''INVALID!'''
         transf = np.zeros(500)
         insertionloss = np.nan
-        optimized_m = np.nan
-        optimized_transf = np.zeros(500)
-        bestMinsertionloss = np.nan
+
+    # Extract valid M range for input S
+    m_for_s = np.linspace(-1, 1, 2001)
+    # Red region, eq. S15
+    Red = np.greater(m_for_s**2,-s)
+    # Gray region, eq. S16
+    Graycheck = 1 - 2 / w * np.sqrt(s - 1 + np.sqrt(2 * s**2 + 2))
+    Gray = np.greater(Graycheck, np.abs(m_for_s))
+    # get mask array:
+    restric = np.logical_and(Red, Gray)
+    masked_m_for_s = np.ma.array(m_for_s, mask=~restric)
+    if np.ma.flatnotmasked_edges(masked_m_for_s) is None:
+        m_range = 'No valid M for chosen S'
+    else:
+        if s > 0:
+            edges = np.ma.flatnotmasked_edges(masked_m_for_s)
+            m_range = str(np.round(m_for_s[edges[0]],3))+' ≤ M ≤ '+str(np.round(m_for_s[edges[1]],3))
+        else:
+            edges = np.concatenate([np.ma.flatnotmasked_edges(masked_m_for_s[0:1000]),np.ma.flatnotmasked_edges(masked_m_for_s[1000:2000])])
+            m_range = str(np.round(m_for_s[edges[0]],3))+' ≤ M ≤ '+str(np.round(m_for_s[edges[1]],3))+' and '+str(np.round(m_for_s[edges[2]+1000],3))+' ≤ M ≤ '+str(np.round(m_for_s[edges[3]+1000],3))
+        #m_range=''
+
+    # Compute the optimized M and transfer function
+    optimized_m2 = -(s-1)/2 + 2/(w*w)*(s-1+math.sqrt(2*s*s+2)) - 2/w*math.sqrt(s-1+math.sqrt(2*s*s+2))
+    if optimized_m2 > 0:
+        optimized_m = math.sqrt(optimized_m2)
+    else:
+        optimized_m = 0
+    optimized_re = (1+optimized_m) * w / (2*math.sqrt(s-1+math.sqrt(2*s*s+2))) - 1
+    optimized_rd = (1-optimized_m) * w / (2*math.sqrt(s-1+math.sqrt(2*s*s+2))) - 1
+    optimized_mu2 = w/2 * math.sqrt(w*w/2 + (2+optimized_re+optimized_rd)**2) - w*w/4 - (1+optimized_re)*(1+optimized_rd)
+    optimized_transf = sdsi(dwrange,optimized_re,optimized_rd,optimized_mu2)
+    bestMinsertionloss = 10.0*math.log10(sdsi(0,optimized_re,optimized_rd,optimized_mu2))
+    # calculate best S, at point B or A ?
+    s_line = np.linspace(0, 1, 1001)
+    m_line = 0
+    D_line = 4 * (s_line + m_line**2)/((s_line + 1)**2) * (1 - m_line**2 - 4/w * np.sqrt(s_line - 1 + np.sqrt(2*(s_line**2 + 1))) + 4/(w**2) * (s_line - 1 + np.sqrt(2*(s_line**2 + 1))))
+    # Red region, eq. S15
+    Red = np.greater(0,-s_line)
+    # Gray region, eq. S16
+    Graycheck = 1 - 2 / w * np.sqrt(s_line - 1 + np.sqrt(2 * s_line**2 + 2))
+    Gray = np.greater(Graycheck, 0)
+    # modify D according to the two restrictions:
+    restric = np.logical_and(Red, Gray) # mask array
+    D_line[~restric] = -1
+    D_max_line = np.nanmax(D_line) # max from the M=0, 0<S<1 line
+    D_max_corner = (1-2/w)*(1-2/w) # max from the M=+-1, S=-1 corner
+    if D_max_line > D_max_corner:
+        best_s = s_line[np.nanargmax(D_line)]
+        best_m = 0
+        bestSinsertionloss = 10.0*math.log10(D_max_line)
+        best_s_re = (1+0) * w / (2*math.sqrt(best_s-1+math.sqrt(2*best_s*best_s+2))) - 1
+        best_s_rd = best_s_re
+        best_s_mu2 = w/2 * math.sqrt(w*w/2 + (2+best_s_re+best_s_re)**2) - w*w/4 - (1+best_s_re)*(1+best_s_re)
+        approximate = 'these values are achievable.'
+    else:
+        best_s = -1
+        best_m = '±1'
+        # Compute the optimized M and transfer function
+        app_optimized_m2 = -(-0.9-1)/2 + 2/(w*w)*(-0.9-1+math.sqrt(2*(-0.9)*(-0.9)+2)) - 2/w*math.sqrt(-0.9-1+math.sqrt(2*(-0.9)*(-0.9)+2))
+        if app_optimized_m2 > 0:
+            app_optimized_m = math.sqrt(app_optimized_m2)
+        else:
+            app_optimized_m = 0
+        approximate = 'but S=-1 will lead to infinite coupling, so take S = -0.9, whose optimized M = ±'+str(np.round(app_optimized_m,3))
+        best_s_re = (1+app_optimized_m) * w / (2*math.sqrt(-0.9-1+math.sqrt(2*(-0.9)*(-0.9)+2))) - 1
+        best_s_rd = (1-app_optimized_m) * w / (2*math.sqrt(-0.9-1+math.sqrt(2*(-0.9)*(-0.9)+2))) - 1
+        best_s_mu2 = w/2 * math.sqrt(w*w/2 + (2+best_s_re+best_s_rd)**2) - w*w/4 - (1+best_s_re)*(1+best_s_rd)
+        bestSinsertionloss = 10.0*math.log10(sdsi(0,best_s_re,best_s_rd,best_s_mu2))
 
     # Plot the spectrum
     spectrum_plot = go.Scatter(
         x=dwrange,
         y=transf,
         mode='lines',
-        name="Spectrum with <br>given S & M"
+        name="Spectrum <br>with<br>given S & M"
     )
     o_spectrum_plot = go.Scatter(
         x=dwrange,
         y=optimized_transf,
         mode='lines',
-        name="Optimized spectrum <br>for given S"
+        name="<br>Optimized <br>spectrum <br>for given S"
     )
-
     # Set the layout of the graph
     layout = go.Layout(
         title="Spectrum",
@@ -269,14 +352,67 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
         margin=dict(l=20, r=20, t=30, b=20),
         height=400,
         legend=dict(
-            traceorder='normal',itemwidth=30  # Adjust the item width as per your preference
+            traceorder='normal',itemwidth=30,xanchor='right',yanchor='top',bgcolor='rgba(0,0,0,0)' # Adjust the item width as per your preference
         )
     )
-
     # Create the figure
     fig = go.Figure(data=[spectrum_plot,o_spectrum_plot], layout=layout)
-    
-    return 'The chosen S and M value is {}'.format(check_s_m), 'Insertion Loss = {:.2f} dB.'.format(insertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestMinsertionloss), fig, 'M= ±{},'.format(optimized_m), s, m, s_slider_value, m_slider_value,re,rd,mu2
+    fig.update_layout(title_text='Spectrum', title_x=0.5)
+
+    # Plot illlustration figure |oo|
+    scalefac = 4.0
+    radius = 1.0
+    illusfig = go.Figure()
+    illusfig.update_xaxes(range=[-1.5,1.5], zeroline=False)
+    illusfig.update_yaxes(range=[-4,4])
+    illusfig.add_shape(type="circle",
+        xref="x", yref="y",
+        x0=-radius, y0=np.exp(-mu2/scalefac)/2, x1=+radius, y1=np.exp(-mu2/scalefac)/2+radius+radius,
+        line_color="LightSeaGreen",
+    )
+    illusfig.add_shape(type="circle",
+        xref="x", yref="y",
+        x0=-radius, y0=-np.exp(-mu2/scalefac)/2, x1=+radius, y1=-np.exp(-mu2/scalefac)/2-radius-radius,
+        line_color="LightSeaGreen",
+    )
+    illusfig.add_shape(type="line",
+        x0=-1.5, y0=np.exp(-mu2/scalefac)/2+radius+radius+np.exp(-re/scalefac), x1=1.5, y1=np.exp(-mu2/scalefac)/2+radius+radius+np.exp(-re/scalefac),
+        line=dict(
+            color="LightSeaGreen",
+            width=2,
+        )
+    )
+    illusfig.add_shape(type="line",
+        x0=-1.5, y0=-(np.exp(-mu2/scalefac)/2+radius+radius+np.exp(-rd/scalefac)), x1=1.5, y1=-(np.exp(-mu2/scalefac)/2+radius+radius+np.exp(-rd/scalefac)),
+        line=dict(
+            color="LightSeaGreen",
+            width=2,
+        )
+    )
+    # re_plot = go.Scatter( # plot wg in, change according to re
+    #     x=dwrange,
+    #     y=transf,
+    #     mode='lines',
+    #     name="Spectrum <br>with<br>given S & M"
+    # )
+    # re_plot = go.Scatter( # plot wg out, change according to rd
+    #     x=dwrange,
+    #     y=transf,
+    #     mode='lines',
+    #     name="Spectrum <br>with<br>given S & M"
+    # )
+    # Set the layout of the graph
+    # illayout = go.Layout(
+    #     title="Illustration",
+    #     margin=dict(l=20, r=20, t=30, b=20),
+    #     height=200,
+    # )
+    # # Create the figure
+    # illusfig = go.Figure(data=[ring_plot], layout=illayout)
+    illusfig.update_layout(width=82.5, height=220, margin=dict(l=0, r=0, t=0, b=0),)
+
+
+    return 'Above (S, M) is {}'.format(check_s_m), '{}'.format(m_range), 'Above (S, M) gives Insertion Loss = {:.2f} dB.'.format(insertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestMinsertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestSinsertionloss), fig, illusfig, 'M = ±{:.3f},'.format(optimized_m), 're = {re:.3f}, rd = {rd:.3f} OR re = {rd:.3f}, rd = {re:.3f};  µ^2 = {mu2:.3f}'.format(re=optimized_re,rd=optimized_rd,mu2=optimized_mu2), 'S = {s}, M = {m}'.format(s=best_s,m=best_m), '{ap}.'.format(ap=approximate), 're = {re:.3f}, rd = {rd:.3f} OR re = {rd:.3f}, rd = {re:.3f};  µ^2 = {mu2:.3f}'.format(re=best_s_re,rd=best_s_rd,mu2=best_s_mu2), s, m, s_slider_value, m_slider_value,re,rd,mu2
 
 # Run the application
 if __name__ == '__main__':
