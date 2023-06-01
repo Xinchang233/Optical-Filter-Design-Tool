@@ -19,14 +19,14 @@ app.layout = html.Div(
     children=[
         html.H1("Maximum drop-port transmission contour", style={'textAlign': 'center'}),
         html.H2(children="Paper: New passband shapes that minimize the insertion loss of coupled-resonator bandpass filters", style={'textAlign': 'center'}),
-        html.Label("Enter the normalized bandwidth Δω/ro then press PLOT: "),
-        dcc.Input(id="width", type="number", value=6),
+        html.Label(children=["Enter the normalized bandwidth Δω/2r",html.Sub(children="o")," then press PLOT: "]),
+        dcc.Input(id="width", type="number", value=3), # should be half-width, just change from w/r0 to w/2r0
         html.Button(id='plot-button-state', n_clicks=0, children='PLOT'),
         dcc.Graph(id="contour-graph"),
         html.Br(),
 
         html.H2("Spectrum Optimization"),
-        html.Label("For Δω/ro being specified above, enter the values for parameters. Specify both S and M, OR any two in re, rd and µ^2:"),
+        html.Label(children=["For Δω/2r",html.Sub(children="o")," being specified above, enter the values for parameters. Specify both S and M, OR any two in r",html.Sub(children="e"),"/r",html.Sub(children="o"),", r",html.Sub(children="d"),"/r",html.Sub(children="o")," and ",html.Span("µ"),"/r",html.Sub(children="o"),":"]),
         html.Div([
             html.Div(children=[
                 html.Label("S : "),
@@ -51,14 +51,16 @@ app.layout = html.Div(
 
             html.Div(children=[
                 #dcc.Graph(id="illustration"),
-                html.Label("re: "),
+                html.Label(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o"),": "]),
                 dcc.Input(id="revalue", type="number"),
                 html.Br(),html.Br(),html.Br(),
-                html.Label("rd: "),
+                html.Label(children=["r",html.Sub(children="d"),"/r",html.Sub(children="o"),": "]),
                 dcc.Input(id="rdvalue", type="number"),
                 html.Br(),html.Br(),html.Br(),
-                html.Label("µ^2: "),
+                html.Label(children=[html.Span("µ"),"/r",html.Sub(children="o"),": "]),
                 dcc.Input(id="mu2value", type="number"),
+                html.Br(),html.Br(),
+                html.Label("Graphical illustration: "),
                 dcc.Graph(id="illustration"),
             ], style={'padding': 15, 'flex': 2}),
         ], style={'display': 'flex', 'flex-direction': 'row'}),
@@ -68,21 +70,21 @@ app.layout = html.Div(
             html.Div(children=[
                 html.P("For the S value above, best M which gives lowes insertion loss (red curve) is:"),
                 html.Div(id="optimized_m_value", style={'textAlign': 'center'}),
-                html.P("and its corresponding re, rd, µ^2 are"),
+                html.P(children=["and its corresponding r",html.Sub(children="e"),", r",html.Sub(children="d"), ", ", html.Span("µ"),html.Sup(children="2")," are"]),
                 html.Div(id="optimized_m_rerd", style={'textAlign': 'center'}),
                 html.P("and it gives"),
                 html.Div(id="IL_best_M", style={'textAlign': 'center'}),
-            ], style={'padding': 15, 'flex': 1}),
+            ], style={'padding': 10, 'flex': 1}),
 
             html.Div(children=[
-                html.P("For the specified Δω/ro, lowest IL comes from"),
+                html.P("For the specified Δω/2ro, lowest IL comes from"),
                 html.Div(id="optimized_s_value", style={'textAlign': 'center'}),
                 html.Div(id="approximateORnot"),
-                html.P("Its corresponding re, rd, µ^2 are"),
+                html.P(children=["Its corresponding r",html.Sub(children="e"),", r",html.Sub(children="d"), ", ", html.Span("µ"),html.Sup(children="2")," are"]),
                 html.Div(id="optimized_s_rerd", style={'textAlign': 'center'}),
                 html.P("and it gives"),
                 html.Div(id="IL_best_S", style={'textAlign': 'center'}),
-            ], style={'padding': 15, 'flex': 1}),
+            ], style={'padding': 10, 'flex': 1}),
         ], style={'display': 'flex', 'flex-direction': 'row'}),
 
         html.Br(),html.Br(),html.Br(),html.Br()
@@ -100,6 +102,7 @@ def update_contour_plot(n_clicks,w):
     if n_clicks is None:
         return go.Figure()
 
+    w = w*2.0
     # Generate S and M values
     s = np.linspace(-0.999999, 1, 1000)
     m = np.linspace(-1, 1, 1000)
@@ -178,6 +181,7 @@ def update_contour_plot(n_clicks,w):
 )
 def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_input,mu2_input,w):
 
+    w = w*2.0 # check this. seems no influence because no return values related to w
     dwrange = np.linspace(-2.5*w, 2.5*w, 500)
 
     ctx = dash.callback_context
@@ -315,7 +319,7 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
         best_s_re = (1+0) * w / (2*math.sqrt(best_s-1+math.sqrt(2*best_s*best_s+2))) - 1
         best_s_rd = best_s_re
         best_s_mu2 = w/2 * math.sqrt(w*w/2 + (2+best_s_re+best_s_re)**2) - w*w/4 - (1+best_s_re)*(1+best_s_re)
-        approximate = 'these values are achievable.'
+        approximate = 'these values are achievable. So take them as it is.'
     else:
         best_s = -1
         best_m = '±1'
@@ -325,7 +329,7 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
             app_optimized_m = math.sqrt(app_optimized_m2)
         else:
             app_optimized_m = 0
-        approximate = 'but S=-1 will lead to infinite coupling, so take S = -0.9, whose optimized M = ±'+str(np.round(app_optimized_m,3))
+        approximate = 'but S=-1 will lead to infinite coupling. So take S = -0.9, whose optimized M = ±'+str(np.round(app_optimized_m,3))
         best_s_re = (1+app_optimized_m) * w / (2*math.sqrt(-0.9-1+math.sqrt(2*(-0.9)*(-0.9)+2))) - 1
         best_s_rd = (1-app_optimized_m) * w / (2*math.sqrt(-0.9-1+math.sqrt(2*(-0.9)*(-0.9)+2))) - 1
         best_s_mu2 = w/2 * math.sqrt(w*w/2 + (2+best_s_re+best_s_rd)**2) - w*w/4 - (1+best_s_re)*(1+best_s_rd)
@@ -347,8 +351,8 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
     # Set the layout of the graph
     layout = go.Layout(
         title="Spectrum",
-        xaxis=dict(title="Δω/ro"), # domain=[0, 0.475],
-        yaxis=dict(title="|sd/si|^2"),
+        xaxis=dict(title="Δω/Δω<sub>3dB"), # domain=[0, 0.475],
+        yaxis=dict(title="|s<sub>d</sub>/s<sub>i</sub>|<sup>2"),
         margin=dict(l=20, r=20, t=30, b=20),
         height=400,
         legend=dict(
@@ -389,27 +393,8 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
             width=2,
         )
     )
-    # re_plot = go.Scatter( # plot wg in, change according to re
-    #     x=dwrange,
-    #     y=transf,
-    #     mode='lines',
-    #     name="Spectrum <br>with<br>given S & M"
-    # )
-    # re_plot = go.Scatter( # plot wg out, change according to rd
-    #     x=dwrange,
-    #     y=transf,
-    #     mode='lines',
-    #     name="Spectrum <br>with<br>given S & M"
-    # )
-    # Set the layout of the graph
-    # illayout = go.Layout(
-    #     title="Illustration",
-    #     margin=dict(l=20, r=20, t=30, b=20),
-    #     height=200,
-    # )
-    # # Create the figure
-    # illusfig = go.Figure(data=[ring_plot], layout=illayout)
-    illusfig.update_layout(width=82.5, height=220, margin=dict(l=0, r=0, t=0, b=0),)
+
+    illusfig.update_layout(width=142.5, height=220, margin=dict(l=30, r=30, t=0, b=0),xaxis=dict(visible=False), yaxis=dict(visible=False),plot_bgcolor='rgba(0,0,0,0)',paper_bgcolor='rgba(0,0,0,0)',dragmode=False)
 
 
     return 'Above (S, M) is {}'.format(check_s_m), '{}'.format(m_range), 'Above (S, M) gives Insertion Loss = {:.2f} dB.'.format(insertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestMinsertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestSinsertionloss), fig, illusfig, 'M = ±{:.3f},'.format(optimized_m), 're = {re:.3f}, rd = {rd:.3f} OR re = {rd:.3f}, rd = {re:.3f};  µ^2 = {mu2:.3f}'.format(re=optimized_re,rd=optimized_rd,mu2=optimized_mu2), 'S = {s}, M = {m}'.format(s=best_s,m=best_m), '{ap}.'.format(ap=approximate), 're = {re:.3f}, rd = {rd:.3f} OR re = {rd:.3f}, rd = {re:.3f};  µ^2 = {mu2:.3f}'.format(re=best_s_re,rd=best_s_rd,mu2=best_s_mu2), s, m, s_slider_value, m_slider_value,re,rd,mu2
