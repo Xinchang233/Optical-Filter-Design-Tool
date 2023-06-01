@@ -26,7 +26,7 @@ app.layout = html.Div(
         html.Br(),
 
         html.H2("Spectrum Optimization"),
-        html.Label(children=["For Δω/2r",html.Sub(children="o")," being specified above, enter the values for parameters. Specify both S and M, OR any two in r",html.Sub(children="e"),"/r",html.Sub(children="o"),", r",html.Sub(children="d"),"/r",html.Sub(children="o")," and ",html.Span("µ"),"/r",html.Sub(children="o"),":"]),
+        html.Label(children=["For Δω/2r",html.Sub(children="o")," being specified above, enter the values for parameters. Specify EITHER (S, M) OR (r",html.Sub(children="e"),"/r",html.Sub(children="o"),", r",html.Sub(children="d"),"/r",html.Sub(children="o"),"):"]),
         html.Div([
             html.Div(children=[
                 html.Label("S : "),
@@ -57,8 +57,7 @@ app.layout = html.Div(
                 html.Label(children=["r",html.Sub(children="d"),"/r",html.Sub(children="o"),": "]),
                 dcc.Input(id="rdvalue", type="number"),
                 html.Br(),html.Br(),html.Br(),
-                html.Label(children=[html.Span("µ"),"/r",html.Sub(children="o"),": "]),
-                dcc.Input(id="mu2value", type="number"),
+                html.Label(children=[html.Span("µ"),"/r",html.Sub(children="o"),": ",html.Div(id="muvalue",style={"display": "inline-block"})]),
                 html.Br(),html.Br(),
                 html.Label("Graphical illustration: "),
                 dcc.Graph(id="illustration"),
@@ -70,18 +69,19 @@ app.layout = html.Div(
             html.Div(children=[
                 html.P("For the S value above, best M which gives lowes insertion loss (red curve) is:"),
                 html.Div(id="optimized_m_value", style={'textAlign': 'center'}),
-                html.P(children=["and its corresponding r",html.Sub(children="e"),", r",html.Sub(children="d"), ", ", html.Span("µ"),html.Sup(children="2")," are"]),
-                html.Div(id="optimized_m_rerd", style={'textAlign': 'center'}),
+                html.P(children=["and its corresponding r",html.Sub(children="e"),", r",html.Sub(children="d"), ", ", html.Span("µ")," are"]),
+                html.Div(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_re1",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_rd1",style={"display": "inline-block"})," OR ","r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_re2",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_rd2",style={"display": "inline-block"}),"; ","µ","/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_mu",style={"display": "inline-block"}),], style={'textAlign': 'center'}),
                 html.P("and it gives"),
                 html.Div(id="IL_best_M", style={'textAlign': 'center'}),
             ], style={'padding': 10, 'flex': 1}),
 
             html.Div(children=[
-                html.P("For the specified Δω/2ro, lowest IL comes from"),
+                html.P(children=["For the specified Δω/2r",html.Sub(children="o"),", lowest IL comes from"]),
                 html.Div(id="optimized_s_value", style={'textAlign': 'center'}),
                 html.Div(id="approximateORnot"),
-                html.P(children=["Its corresponding r",html.Sub(children="e"),", r",html.Sub(children="d"), ", ", html.Span("µ"),html.Sup(children="2")," are"]),
-                html.Div(id="optimized_s_rerd", style={'textAlign': 'center'}),
+                html.P(children=["Its corresponding r",html.Sub(children="e"),", r",html.Sub(children="d"), ", ", html.Span("µ")," are"]),
+                html.Div(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_re1",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_rd1",style={"display": "inline-block"})," OR ","r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_re2",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_rd2",style={"display": "inline-block"}),"; ","µ","/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_mu",style={"display": "inline-block"}),], style={'textAlign': 'center'}),
+                #html.Div(id="optimized_s_rerd", style={'textAlign': 'center'}),
                 html.P("and it gives"),
                 html.Div(id="IL_best_S", style={'textAlign': 'center'}),
             ], style={'padding': 10, 'flex': 1}),
@@ -158,17 +158,27 @@ def update_contour_plot(n_clicks,w):
     Output("spectrum", "figure"),
     Output("illustration", "figure"),
     Output("optimized_m_value", "children"),
-    Output("optimized_m_rerd", "children"), # gives the sentence containing re, rd, mu^2
+    # Output("optimized_m_rerd", "children"), # gives the sentence containing re, rd, mu^2
+    Output("optimized_m_re1", "children"),
+    Output("optimized_m_rd1", "children"),
+    Output("optimized_m_re2", "children"),
+    Output("optimized_m_rd2", "children"),
+    Output("optimized_m_mu", "children"),
     Output("optimized_s_value", "children"),
     Output("approximateORnot", "children"), # if S = -1, take S = -0.9
-    Output("optimized_s_rerd", "children"), # gives the sentence containing re, rd, mu^2
+    Output("optimized_s_re1", "children"),
+    Output("optimized_s_rd1", "children"),
+    Output("optimized_s_re2", "children"),
+    Output("optimized_s_rd2", "children"),
+    Output("optimized_s_mu", "children"),
+    # Output("optimized_s_rerd", "children"), # gives the sentence containing re, rd, mu^2
     Output("svalue", "value"),
     Output("mvalue", "value"),
     Output("svalue_slider", "value"),
     Output("mvalue_slider", "value"),
     Output("revalue", "value"),
     Output("rdvalue", "value"),
-    Output("mu2value", "value"),
+    Output("muvalue", "children"),
     Input("plot-button-state","n_clicks"),
     Input("svalue", "value"),
     Input("mvalue", "value"),
@@ -176,10 +186,9 @@ def update_contour_plot(n_clicks,w):
     Input("mvalue_slider", "value"),
     Input("revalue", "value"),
     Input("rdvalue", "value"),
-    Input("mu2value", "value"),
     State("width", "value"),
 )
-def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_input,mu2_input,w):
+def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_input,w):
 
     w = w*2.0 # check this. seems no influence because no return values related to w
     dwrange = np.linspace(-2.5*w, 2.5*w, 500)
@@ -233,14 +242,6 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
         rd = rd_input
         re = re_input
         mu2 = w/2 * math.sqrt(w*w/2 + (2+re+rd)**2) - w*w/4 - (1+re)*(1+rd)
-        s = (4*mu2-(re-rd)**2)/((re+rd+2)**2)
-        s_slider_value = s
-        m = (re-rd)/(re+rd+2)
-        m_slider_value = m
-    elif trigger_id == "mu2value":
-        mu2 = mu2_input
-        rd = rd_input
-        re = re_input
         s = (4*mu2-(re-rd)**2)/((re+rd+2)**2)
         s_slider_value = s
         m = (re-rd)/(re+rd+2)
@@ -338,13 +339,13 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
     # Plot the spectrum
     spectrum_plot = go.Scatter(
         x=dwrange,
-        y=transf,
+        y=10.0*np.log10(transf),
         mode='lines',
         name="Spectrum <br>with<br>given S & M"
     )
     o_spectrum_plot = go.Scatter(
         x=dwrange,
-        y=optimized_transf,
+        y=10.0*np.log10(optimized_transf),
         mode='lines',
         name="<br>Optimized <br>spectrum <br>for given S"
     )
@@ -352,7 +353,7 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
     layout = go.Layout(
         title="Spectrum",
         xaxis=dict(title="Δω/Δω<sub>3dB"), # domain=[0, 0.475],
-        yaxis=dict(title="|s<sub>d</sub>/s<sub>i</sub>|<sup>2"),
+        yaxis=dict(title="10lg(|s<sub>d</sub>/s<sub>i</sub>|<sup>2)"),
         margin=dict(l=20, r=20, t=30, b=20),
         height=400,
         legend=dict(
@@ -369,35 +370,36 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
     illusfig = go.Figure()
     illusfig.update_xaxes(range=[-1.5,1.5], zeroline=False)
     illusfig.update_yaxes(range=[-4,4])
-    illusfig.add_shape(type="circle",
-        xref="x", yref="y",
-        x0=-radius, y0=np.exp(-mu2/scalefac)/2, x1=+radius, y1=np.exp(-mu2/scalefac)/2+radius+radius,
-        line_color="LightSeaGreen",
-    )
-    illusfig.add_shape(type="circle",
-        xref="x", yref="y",
-        x0=-radius, y0=-np.exp(-mu2/scalefac)/2, x1=+radius, y1=-np.exp(-mu2/scalefac)/2-radius-radius,
-        line_color="LightSeaGreen",
-    )
-    illusfig.add_shape(type="line",
-        x0=-1.5, y0=np.exp(-mu2/scalefac)/2+radius+radius+np.exp(-re/scalefac), x1=1.5, y1=np.exp(-mu2/scalefac)/2+radius+radius+np.exp(-re/scalefac),
-        line=dict(
-            color="LightSeaGreen",
-            width=2,
+    if re>=0 and rd>=0 and mu2>=0:
+        illusfig.add_shape(type="circle",
+            xref="x", yref="y",
+            x0=-radius, y0=np.exp(-np.sqrt(mu2)/scalefac)/2, x1=+radius, y1=np.exp(-np.sqrt(mu2)/scalefac)/2+radius+radius,
+            line_color="LightSeaGreen",
         )
-    )
-    illusfig.add_shape(type="line",
-        x0=-1.5, y0=-(np.exp(-mu2/scalefac)/2+radius+radius+np.exp(-rd/scalefac)), x1=1.5, y1=-(np.exp(-mu2/scalefac)/2+radius+radius+np.exp(-rd/scalefac)),
-        line=dict(
-            color="LightSeaGreen",
-            width=2,
+        illusfig.add_shape(type="circle",
+            xref="x", yref="y",
+            x0=-radius, y0=-np.exp(-np.sqrt(mu2)/scalefac)/2, x1=+radius, y1=-np.exp(-np.sqrt(mu2)/scalefac)/2-radius-radius,
+            line_color="LightSeaGreen",
         )
-    )
+        illusfig.add_shape(type="line",
+            x0=-1.5, y0=np.exp(-np.sqrt(mu2)/scalefac)/2+radius+radius+np.exp(-re/scalefac), x1=1.5, y1=np.exp(-np.sqrt(mu2)/scalefac)/2+radius+radius+np.exp(-re/scalefac),
+            line=dict(
+                color="LightSeaGreen",
+                width=2,
+            )
+        )
+        illusfig.add_shape(type="line",
+            x0=-1.5, y0=-(np.exp(-np.sqrt(mu2)/scalefac)/2+radius+radius+np.exp(-rd/scalefac)), x1=1.5, y1=-(np.exp(-np.sqrt(mu2)/scalefac)/2+radius+radius+np.exp(-rd/scalefac)),
+            line=dict(
+                color="LightSeaGreen",
+                width=2,
+            )
+        )
 
     illusfig.update_layout(width=142.5, height=220, margin=dict(l=30, r=30, t=0, b=0),xaxis=dict(visible=False), yaxis=dict(visible=False),plot_bgcolor='rgba(0,0,0,0)',paper_bgcolor='rgba(0,0,0,0)',dragmode=False)
 
 
-    return 'Above (S, M) is {}'.format(check_s_m), '{}'.format(m_range), 'Above (S, M) gives Insertion Loss = {:.2f} dB.'.format(insertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestMinsertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestSinsertionloss), fig, illusfig, 'M = ±{:.3f},'.format(optimized_m), 're = {re:.3f}, rd = {rd:.3f} OR re = {rd:.3f}, rd = {re:.3f};  µ^2 = {mu2:.3f}'.format(re=optimized_re,rd=optimized_rd,mu2=optimized_mu2), 'S = {s}, M = {m}'.format(s=best_s,m=best_m), '{ap}.'.format(ap=approximate), 're = {re:.3f}, rd = {rd:.3f} OR re = {rd:.3f}, rd = {re:.3f};  µ^2 = {mu2:.3f}'.format(re=best_s_re,rd=best_s_rd,mu2=best_s_mu2), s, m, s_slider_value, m_slider_value,re,rd,mu2
+    return 'Above (S, M) is {}'.format(check_s_m), '{}'.format(m_range), 'Above (S, M) gives Insertion Loss = {:.2f} dB.'.format(insertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestMinsertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestSinsertionloss), fig, illusfig, 'M = ±{:.3f},'.format(optimized_m), np.round(optimized_re,3), np.round(optimized_rd,3),np.round(optimized_rd,3),np.round(optimized_re,3), np.round(np.sqrt(optimized_mu2),3), 'S = {s}, M = {m}'.format(s=best_s,m=best_m), '{ap}.'.format(ap=approximate), np.round(best_s_re,3), np.round(best_s_rd,3),np.round(best_s_rd,3),np.round(best_s_re,3), np.round(np.sqrt(best_s_mu2),3), s, m, s_slider_value, m_slider_value,np.round(re,3),np.round(rd,3),np.round(np.sqrt(mu2),3)
 
 # Run the application
 if __name__ == '__main__':
