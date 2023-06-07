@@ -87,6 +87,10 @@ app.layout = html.Div(
             ], style={'padding': 10, 'flex': 1}),
         ], style={'display': 'flex', 'flex-direction': 'row'}),
 
+        html.H4("Bode Plot"),
+        # dcc.Graph(id="bodespectrum"),
+        html.Div(children=[dcc.Graph(id="bodespectrum")],style = {'width': '50%'}),
+
         html.Br(),html.Br(),html.Br(),html.Br()
     ],
     style={'margin-left': '50px','margin-right': '50px'}
@@ -156,6 +160,7 @@ def update_contour_plot(n_clicks,w):
     Output("IL_best_M","children"),
     Output("IL_best_S","children"),
     Output("spectrum", "figure"),
+    Output("bodespectrum", "figure"),
     Output("illustration", "figure"),
     Output("optimized_m_value", "children"),
     # Output("optimized_m_rerd", "children"), # gives the sentence containing re, rd, mu^2
@@ -192,6 +197,8 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
 
     w = w*2.0 # check this. seems no influence because no return values related to w
     dwrange = np.linspace(-2.5*w, 2.5*w, 500)
+    pdwranget = np.linspace(-1, 4.5, 250)
+    pdwrange = np.power(10,pdwranget)
 
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -261,10 +268,12 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
         
         # Compute the transfer function
         transf = sdsi(dwrange,re,rd,mu2)
+        ptransf = sdsi(pdwrange,re,rd,mu2)
         insertionloss = 10.0*math.log10(sdsi(0.0,re,rd,mu2))
     else:
         check_s_m = '''INVALID!'''
         transf = np.zeros(500)
+        ptransf = np.zeros(250)
         insertionloss = np.nan
 
     # Extract valid M range for input S
@@ -298,6 +307,7 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
     optimized_rd = (1-optimized_m) * w / (2*math.sqrt(s-1+math.sqrt(2*s*s+2))) - 1
     optimized_mu2 = w/2 * math.sqrt(w*w/2 + (2+optimized_re+optimized_rd)**2) - w*w/4 - (1+optimized_re)*(1+optimized_rd)
     optimized_transf = sdsi(dwrange,optimized_re,optimized_rd,optimized_mu2)
+    optimized_ptransf = sdsi(pdwrange,optimized_re,optimized_rd,optimized_mu2)
     bestMinsertionloss = 10.0*math.log10(sdsi(0,optimized_re,optimized_rd,optimized_mu2))
     # calculate best S, at point B or A ?
     s_line = np.linspace(0, 1, 1001)
@@ -398,8 +408,37 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
 
     illusfig.update_layout(width=142.5, height=220, margin=dict(l=30, r=30, t=0, b=0),xaxis=dict(visible=False), yaxis=dict(visible=False),plot_bgcolor='rgba(0,0,0,0)',paper_bgcolor='rgba(0,0,0,0)',dragmode=False)
 
+    # plot the Bode fig
+    bodespectrum_plot = go.Scatter(
+        x=pdwrange,
+        y=10.0*np.log10(ptransf),
+        mode='lines',
+        name="Spectrum <br>with<br>given S & M"
+    )
+    o_bodespectrum_plot = go.Scatter(
+        x=pdwrange,
+        y=10.0*np.log10(optimized_ptransf),
+        mode='lines',
+        name="<br>Optimized <br>spectrum <br>for given S"
+    )
+    # Set the layout of the graph
+    blayout = go.Layout(
+        title="Spectrum Bode Plot",
+        xaxis=dict(title="Δω/Δω<sub>3dB"), # domain=[0, 0.475],
+        yaxis=dict(title="10lg(|s<sub>d</sub>/s<sub>i</sub>|<sup>2)"),
+        margin=dict(l=20, r=20, t=30, b=20),
+        height=400,
+        legend=dict(
+            traceorder='normal',itemwidth=30,xanchor='right',yanchor='top',bgcolor='rgba(0,0,0,0)' # Adjust the item width as per your preference
+        )
+    )
+    # Create the figure
+    bodefig = go.Figure(data=[bodespectrum_plot,o_bodespectrum_plot], layout=blayout)
+    bodefig.update_xaxes(type="log", range=[-1,5]) # log range: 10^0=1, 10^5=100000
+    bodefig.update_layout(title_text='Spectrum Bode Plot', title_x=0.5)
 
-    return 'Above (S, M) is {}'.format(check_s_m), '{}'.format(m_range), 'Above (S, M) gives Insertion Loss = {:.2f} dB.'.format(insertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestMinsertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestSinsertionloss), fig, illusfig, 'M = ±{:.3f},'.format(optimized_m), np.round(optimized_re,3), np.round(optimized_rd,3),np.round(optimized_rd,3),np.round(optimized_re,3), np.round(np.sqrt(optimized_mu2),3), 'S = {s}, M = {m}'.format(s=best_s,m=best_m), '{ap}.'.format(ap=approximate), np.round(best_s_re,3), np.round(best_s_rd,3),np.round(best_s_rd,3),np.round(best_s_re,3), np.round(np.sqrt(best_s_mu2),3), s, m, s_slider_value, m_slider_value,np.round(re,3),np.round(rd,3),np.round(np.sqrt(mu2),3)
+
+    return 'Above (S, M) is {}'.format(check_s_m), '{}'.format(m_range), 'Above (S, M) gives Insertion Loss = {:.2f} dB.'.format(insertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestMinsertionloss), 'Insertion Loss = {:.2f} dB.'.format(bestSinsertionloss), fig, bodefig, illusfig, 'M = ±{:.3f},'.format(optimized_m), np.round(optimized_re,3), np.round(optimized_rd,3),np.round(optimized_rd,3),np.round(optimized_re,3), np.round(np.sqrt(optimized_mu2),3), 'S = {s}, M = {m}'.format(s=best_s,m=best_m), '{ap}.'.format(ap=approximate), np.round(best_s_re,3), np.round(best_s_rd,3),np.round(best_s_rd,3),np.round(best_s_re,3), np.round(np.sqrt(best_s_mu2),3), s, m, s_slider_value, m_slider_value,np.round(re,3),np.round(rd,3),np.round(np.sqrt(mu2),3)
 
 # Run the application
 if __name__ == '__main__':
