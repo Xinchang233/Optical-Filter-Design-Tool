@@ -22,6 +22,14 @@ app.layout = html.Div(
         html.Label(children=["Enter the normalized bandwidth Δω/2r",html.Sub(children="o")," then press PLOT: "]),
         dcc.Input(id="width", type="number", value=3), # should be half-width, just change from w/r0 to w/2r0
         html.Button(id='plot-button-state', n_clicks=0, children='PLOT'),
+        html.Br(),
+        html.Strong(children=['Calculate r',html.Sub(children="o"),': ']),
+        html.Label(children=["Input Q",html.Sub(children="o"),": "]),
+        dcc.Input(id="Q0", type="number", value=1000000),
+        html.Label(children=[",  Input ",html.Span("λ"),html.Sub(children="o"),"(nm): "]),
+        dcc.Input(id="lambda0", type="number", value=1515),
+        html.Label(children=[",  r",html.Sub(children="o")," = "]),
+        html.Div(id="r0",style={"display": "inline-block"}),
         dcc.Graph(id="contour-graph"),
         html.Br(),
 
@@ -98,13 +106,19 @@ app.layout = html.Div(
 
 # Define the callback function to update the contour plot only after press "PLOT"
 @app.callback(
+    Output("r0","children"),
     Output("contour-graph", "figure"),
+    Input("Q0","value"),
+    Input("lambda0","value"),
     Input("plot-button-state","n_clicks"),
     State("width", "value")
 )
-def update_contour_plot(n_clicks,w):
+def update_contour_plot(Q0,lambda0,n_clicks,w):
     if n_clicks is None:
         return go.Figure()
+    
+    # Calculate r0
+    ro = np.pi * 2.99792458 / lambda0 * 100000000000000000 / Q0
 
     w = w*2.0
     # Generate S and M values
@@ -150,7 +164,7 @@ def update_contour_plot(n_clicks,w):
     # Create the figure
     fig = go.Figure(data=[contour_plot], layout=layout)
     
-    return fig
+    return np.round(ro), fig
 
 # Define the callback function to update the spectrum
 @app.callback(
