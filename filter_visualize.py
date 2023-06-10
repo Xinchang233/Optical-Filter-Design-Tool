@@ -17,24 +17,14 @@ app = dash.Dash(__name__)
 # Define the layout
 app.layout = html.Div(
     children=[
-        html.H1("Maximum drop-port transmission contour", style={'textAlign': 'center'}),
-        html.H2(children="Paper: New passband shapes that minimize the insertion loss of coupled-resonator bandpass filters", style={'textAlign': 'center'}),
-        html.Label(children=["Enter the normalized bandwidth Δω/2r",html.Sub(children="o")," then press PLOT: "]),
-        dcc.Input(id="width", type="number", value=3), # should be half-width, just change from w/r0 to w/2r0
-        html.Button(id='plot-button-state', n_clicks=0, children='PLOT'),
-        html.Br(),
-        html.Strong(children=['Calculate r',html.Sub(children="o"),': ']),
-        html.Label(children=["Input Q",html.Sub(children="o"),": "]),
-        dcc.Input(id="Q0", type="number", value=1000000),
-        html.Label(children=[",  Input ",html.Span("λ"),html.Sub(children="o"),"(nm): "]),
-        dcc.Input(id="lambda0", type="number", value=1515),
-        html.Label(children=[",  r",html.Sub(children="o")," = "]),
-        html.Div(id="r0",style={"display": "inline-block"}),
-        dcc.Graph(id="contour-graph"),
-        html.Br(),
+        html.H1(children="New passband shapes that minimize the insertion loss of coupled-resonator bandpass filters", style={'textAlign': 'center'}),
 
-        html.H2("Spectrum Optimization"),
-        html.Label(children=["For Δω/2r",html.Sub(children="o")," being specified above, enter the values for parameters. Specify EITHER (S, M) OR (r",html.Sub(children="e"),"/r",html.Sub(children="o"),", r",html.Sub(children="d"),"/r",html.Sub(children="o"),"):"]),
+        html.H3("Spectrum Optimization"),
+        html.Label(children=["Enter the normalized bandwidth Δω/2r",html.Sub(children="o")," then press CONFIRM: "]),
+        dcc.Input(id="width", type="number", value=3), # should be half-width, just change from w/r0 to w/2r0
+        html.Button(id='plot-button-state', n_clicks=0, children='CONFIRM'),
+        html.Br(),html.Br(),
+        html.Label(children=["Then specify EITHER (S, M) OR (r",html.Sub(children="e"),"/r",html.Sub(children="o"),", r",html.Sub(children="d"),"/r",html.Sub(children="o"),"):"]),
         html.Div([
             html.Div(children=[
                 html.Label("S : "),
@@ -55,7 +45,7 @@ app.layout = html.Div(
 
             html.Div(children=[
                 dcc.Graph(id="spectrum"),
-            ], style={'padding': 5, 'flex': 5}),
+            ], style={'padding': 1, 'flex': 5}),
 
             html.Div(children=[
                 #dcc.Graph(id="illustration"),
@@ -69,19 +59,19 @@ app.layout = html.Div(
                 html.Br(),html.Br(),
                 html.Label("Graphical illustration: "),
                 dcc.Graph(id="illustration"),
-            ], style={'padding': 15, 'flex': 2}),
+            ], style={'padding': 10, 'flex': 2}),
         ], style={'display': 'flex', 'flex-direction': 'row'}),
 
         html.H3("Optimization Analysis"),
         html.Div([
             html.Div(children=[
-                html.P("For the S value above, best M which gives lowes insertion loss (red curve) is:"),
+                html.P("For the S value above, best M which gives lowes insertion loss (red curve)"),
                 html.Div(id="optimized_m_value", style={'textAlign': 'center'}),
                 html.P(children=["and its corresponding r",html.Sub(children="e"),", r",html.Sub(children="d"), ", ", html.Span("µ")," are"]),
                 html.Div(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_re1",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_rd1",style={"display": "inline-block"})," OR ","r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_re2",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_rd2",style={"display": "inline-block"}),"; ","µ","/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_mu",style={"display": "inline-block"}),], style={'textAlign': 'center'}),
                 html.P("and it gives"),
                 html.Div(id="IL_best_M", style={'textAlign': 'center'}),
-            ], style={'padding': 10, 'flex': 1}),
+            ], style={'padding-right': '10px', 'flex': 2}),
 
             html.Div(children=[
                 html.P(children=["For the specified Δω/2r",html.Sub(children="o"),", lowest IL comes from"]),
@@ -92,12 +82,24 @@ app.layout = html.Div(
                 #html.Div(id="optimized_s_rerd", style={'textAlign': 'center'}),
                 html.P("and it gives"),
                 html.Div(id="IL_best_S", style={'textAlign': 'center'}),
-            ], style={'padding': 10, 'flex': 1}),
+            ], style={'padding-right': '10px', 'flex': 2}),
+
+            html.Div(children=[
+                html.Div(children=[dcc.Graph(id="bodespectrum")]),
+            ], style={'padding-right': '1px', 'flex': 1}),
         ], style={'display': 'flex', 'flex-direction': 'row'}),
 
-        html.H4("Bode Plot"),
-        # dcc.Graph(id="bodespectrum"),
-        html.Div(children=[dcc.Graph(id="bodespectrum")],style = {'width': '50%'}),
+        html.H3("Contour Plot for Filter Transmission"),
+        dcc.Graph(id="contour-graph"),
+        html.Br(),
+
+        html.H3(children=['Calculate r',html.Sub(children="o"),': ']),
+        html.Label(children=["Input Q",html.Sub(children="o"),": "]),
+        dcc.Input(id="Q0", type="number", value=1000000),
+        html.Label(children=[",  Input ",html.Span("λ"),html.Sub(children="o"),"(nm): "]),
+        dcc.Input(id="lambda0", type="number", value=1515),
+        html.Label(children=[",  r",html.Sub(children="o")," = "]),
+        html.Div(id="r0",style={"display": "inline-block"}),
 
         html.Br(),html.Br(),html.Br(),html.Br()
     ],
@@ -354,7 +356,7 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
             app_optimized_m = math.sqrt(app_optimized_m2)
         else:
             app_optimized_m = 0
-        approximate = 'but S=-1 will lead to infinite coupling. So take S = -0.9, whose optimized M = ±'+str(np.round(app_optimized_m,3))
+        approximate = 'but S=-1 will lead to infinite coupling. So take S = -0.9, optimized M = ±'+str(np.round(app_optimized_m,3))
         best_s_re = (1+app_optimized_m) * w / (2*math.sqrt(-0.9-1+math.sqrt(2*(-0.9)*(-0.9)+2))) - 1
         best_s_rd = (1-app_optimized_m) * w / (2*math.sqrt(-0.9-1+math.sqrt(2*(-0.9)*(-0.9)+2))) - 1
         best_s_mu2 = w/2 * math.sqrt(w*w/2 + (2+best_s_re+best_s_rd)**2) - w*w/4 - (1+best_s_re)*(1+best_s_rd)
