@@ -7,5 +7,7 @@ This app helps you extract the optimal design of filter, as illustrated in the p
 3. Then download the code and put it under some convinient directory on your computer.  
 4. Open the Terminal of your computer, type `conda activate` and Enter. If you are using Windows, then open Anaconda Prompt and do the same thing.  
 5. Type `python _directory_of_your_downloaded_code_/filter_visualize.py` then Enter.  
-6. Several new lines will appear on the screen. Copy the URL (in the red box of figure below) and paste it into browser. The app is available to you. ![illustration1](https://github.com/Xinchang233/Dual-Ring-Filter-Calculator/blob/main/illustration1.png)
+6. Several new lines will appear on the screen. Copy the URL (in the red box of figure below) and paste it into browser. The app is available to you. ![illustration1](https://github.com/Xinchang233/Dual-Ring-Filter-Calculator/blob/main/illustration1.png)  
+##### Trouble shooting
+If some error like `ModuleNotFoundError: No module named 'dash'` appears on screen, following [this](https://dash.plotly.com/installation) to install dash.
 ### Demostration
