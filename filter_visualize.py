@@ -19,11 +19,14 @@ app.layout = html.Div(
     children=[
         html.H1(children="New passband shapes that minimize the insertion loss of coupled-resonator bandpass filters", style={'textAlign': 'center'}),
 
-        html.H3("Spectrum Optimization"),
-        html.Label(children=["Enter the normalized bandwidth Δω/2r",html.Sub(children="o")," then press CONFIRM: "]),
+        html.H3("Contour Plot for Filter Transmission"),
+        html.Label(children=["Enter the normalized bandwidth Δω/2r",html.Sub(children="o")," then press PLOT: "]),
         dcc.Input(id="width", type="number", value=3), # should be half-width, just change from w/r0 to w/2r0
-        html.Button(id='plot-button-state', n_clicks=0, children='CONFIRM'),
-        html.Br(),html.Br(),
+        html.Button(id='plot-button-state', n_clicks=0, children='PLOT'),
+        dcc.Graph(id="contour-graph"),
+        html.Br(),
+
+        html.H3("Spectrum Optimization"),
         html.Label(children=["Then specify EITHER (S, M) OR (r",html.Sub(children="e"),"/r",html.Sub(children="o"),", r",html.Sub(children="d"),"/r",html.Sub(children="o"),"):"]),
         html.Div([
             html.Div(children=[
@@ -68,7 +71,7 @@ app.layout = html.Div(
                 html.P("For the S value above, best M which gives lowes insertion loss (red curve)"),
                 html.Div(id="optimized_m_value", style={'textAlign': 'center'}),
                 html.P(children=["and its corresponding r",html.Sub(children="e"),", r",html.Sub(children="d"), ", ", html.Span("µ")," are"]),
-                html.Div(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_re1",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_rd1",style={"display": "inline-block"})," OR ","r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_re2",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_rd2",style={"display": "inline-block"}),"; ","µ","/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_mu",style={"display": "inline-block"}),], style={'textAlign': 'center'}),
+                html.Div(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_re1",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_rd1",style={"display": "inline-block"})," OR ","r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_re2",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_rd2",style={"display": "inline-block"}),"; ",html.Br(),"µ","/r",html.Sub(children="o")," = ",html.Div(id="optimized_m_mu",style={"display": "inline-block"}),], style={'textAlign': 'center'}),
                 html.P("and it gives"),
                 html.Div(id="IL_best_M", style={'textAlign': 'center'}),
             ], style={'padding-right': '10px', 'flex': 2}),
@@ -78,7 +81,7 @@ app.layout = html.Div(
                 html.Div(id="optimized_s_value", style={'textAlign': 'center'}),
                 html.Div(id="approximateORnot"),
                 html.P(children=["Its corresponding r",html.Sub(children="e"),", r",html.Sub(children="d"), ", ", html.Span("µ")," are"]),
-                html.Div(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_re1",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_rd1",style={"display": "inline-block"})," OR ","r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_re2",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_rd2",style={"display": "inline-block"}),"; ","µ","/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_mu",style={"display": "inline-block"}),], style={'textAlign': 'center'}),
+                html.Div(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_re1",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_rd1",style={"display": "inline-block"})," OR ","r",html.Sub(children="e"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_re2",style={"display": "inline-block"}),", ","r",html.Sub(children="d"),"/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_rd2",style={"display": "inline-block"}),"; ",html.Br(),"µ","/r",html.Sub(children="o")," = ",html.Div(id="optimized_s_mu",style={"display": "inline-block"}),], style={'textAlign': 'center'}),
                 #html.Div(id="optimized_s_rerd", style={'textAlign': 'center'}),
                 html.P("and it gives"),
                 html.Div(id="IL_best_S", style={'textAlign': 'center'}),
@@ -88,10 +91,6 @@ app.layout = html.Div(
                 html.Div(children=[dcc.Graph(id="bodespectrum")]),
             ], style={'padding-right': '1px', 'flex': 1}),
         ], style={'display': 'flex', 'flex-direction': 'row'}),
-
-        html.H3("Contour Plot for Filter Transmission"),
-        dcc.Graph(id="contour-graph"),
-        html.Br(),
 
         html.H3(children=['Calculate r',html.Sub(children="o"),': ']),
         html.Label(children=["Input Q",html.Sub(children="o"),": "]),
@@ -150,7 +149,7 @@ def update_contour_plot(Q0,lambda0,n_clicks,w):
         x=s,
         y=m,
         z=D,
-        #colorscale="",
+        colorscale=[[0,'rgba(255,255,255,0)'],[0.1429,'rgb(82, 2, 162)'],[0.2857,'rgb(138, 15, 162)'],[0.4286,'rgb(184, 50, 137)'],[0.5714,'rgb(219, 92, 104)'],[0.7143,'rgb(243, 137, 72)'],[0.8571,'rgb(253, 189, 43)'],[1,'rgb(240, 249, 33)']],
         contours=dict(start=0, end=np.nanmax(D), size = contourSize),
         hovertemplate="S=%{x:.4f}<br>M=%{y:.4f}<br>D=%{z:.4f}<extra></extra>",
         #showscale=False
@@ -367,13 +366,13 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
         x=dwrange,
         y=10.0*np.log10(transf),
         mode='lines',
-        name="Spectrum <br>with<br>given S & M"
+        name="given <br>S & M"
     )
     o_spectrum_plot = go.Scatter(
         x=dwrange,
         y=10.0*np.log10(optimized_transf),
         mode='lines',
-        name="<br>Optimized <br>spectrum <br>for given S"
+        name="Optimized<br>m for<br>given S"
     )
     # Set the layout of the graph
     layout = go.Layout(
@@ -429,13 +428,13 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
         x=pdwrange,
         y=10.0*np.log10(ptransf),
         mode='lines',
-        name="Spectrum <br>with<br>given S & M"
+        name="given <br>S & M"
     )
     o_bodespectrum_plot = go.Scatter(
         x=pdwrange,
         y=10.0*np.log10(optimized_ptransf),
         mode='lines',
-        name="<br>Optimized <br>spectrum <br>for given S"
+        name="Optimized<br>m for<br>given S"
     )
     # Set the layout of the graph
     blayout = go.Layout(
