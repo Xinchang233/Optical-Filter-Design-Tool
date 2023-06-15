@@ -11,3 +11,6 @@ This app helps you extract the optimal design of filter, as illustrated in the p
 ##### Trouble shooting
 If some error like `ModuleNotFoundError: No module named 'dash'` appears on screen, following [this](https://dash.plotly.com/installation) to install dash.
 ### Demostration
+First, input the bandwidth here, then press PLOT button. A contour map like the one in paper will show up. ![dm1](https://github.com/Xinchang233/Dual-Ring-Filter-Calculator/blob/main/demo1.png)  
+Then, you can tune the shape parameter S and impedence match M through either input a value or play with the slider. You can see the trend by tunning the slider. Real-time values and graphes will keeps updating when you are changing the parameter. You can also change the spectrum by modifying the coupling coefficients on the other side of the spectrum. The graph of two rings and waveguides at the corner gives an intuitive illustration of how strong the coupling is.![dm2](https://github.com/Xinchang233/Dual-Ring-Filter-Calculator/blob/main/demo2.png)  
+The app also lets you calculate ro (loss coupling rate) of the ring:![dm3](https://github.com/Xinchang233/Dual-Ring-Filter-Calculator/blob/main/demo3.png)  
