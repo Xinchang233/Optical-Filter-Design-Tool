@@ -1,3 +1,23 @@
+'''
+-------------------------------------------------------------------------------------------------------------------
+HOW TO RUN THIS CODE: (detailed instruction please see https://github.com/Xinchang233/Dual-Ring-Filter-Calculator)
+-------------------------------------------------------------------------------------------------------------------
+1. To make the code running, Python along with some affiliated packages needs to be installed on your own computer. 
+    This can be done easily with the help of Anaconda. To install it, follow the link (https://www.anaconda.com) and 
+    go to its official website and download the version corresponding to your operational system. It is same as 
+    installing any other software on your own machine.
+2. After sucessfully installing Anaconda, the environment should be set up properly automatically. Since the packages 
+    used in the code is usually preinstalled along with Anaconda. If some error like 
+    "ModuleNotFoundError: No module named 'dash' "
+    appears on screen, following this to install dash (https://dash.plotly.com/installation).
+3. Then put this code under some convinient directory on your computer.
+4. Open the Terminal of your computer, type conda activate and Enter. If you are using Windows, then open Anaconda 
+    Prompt and do the same thing.
+5. Type python _directory_of_your_downloaded_code_/filter_visualize.py then Enter.
+6. Several new lines will appear on the screen. Copy the URL (in the red box of figure below) and paste it into 
+    browser [see figure at https://github.com/Xinchang233/Dual-Ring-Filter-Calculator/blob/main/illustration1.png]. 
+    The app is available to you.
+'''
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
@@ -99,6 +119,7 @@ app.layout = html.Div(
         dcc.Input(id="lambda0", type="number", value=1515),
         html.Label(children=[",  r",html.Sub(children="o")," = "]),
         html.Div(id="r0",style={"display": "inline-block"}),
+        html.Label(children=[" rad/s"]),
 
         html.Br(),html.Br(),html.Br(),html.Br()
     ],
@@ -139,7 +160,7 @@ def update_contour_plot(Q0,lambda0,n_clicks,w):
 
     # modify D according to the two restrictions:
     restric = np.logical_and(Red, Gray) # mask array
-    D[~restric] = -1
+    D[~restric] = -99999
 
     # always need 6 contour lines, self-determine distances
     contourSize = np.nanmax(D) / 6.0
@@ -157,7 +178,7 @@ def update_contour_plot(Q0,lambda0,n_clicks,w):
     
     # Set the layout of the graph
     layout = go.Layout(
-        title="Contour for D (D=-1 means unphysical device with negative coupling, see Eq. S15 & S16)",
+        title="Peak Transmission (D)",
         xaxis=dict(title="Shape Parameter S"),
         yaxis=dict(title="Impedence Match M")
     )
