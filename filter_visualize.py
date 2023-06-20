@@ -478,4 +478,4 @@ def update_spectrum(contour_click,s_input,m_input,s_slider,m_slider,re_input,rd_
 
 # Run the application
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
