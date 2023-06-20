@@ -37,24 +37,24 @@ app = dash.Dash(__name__)
 # Define the layout
 app.layout = html.Div(
     children=[
-        html.H1(children="New passband shapes that minimize the insertion loss of coupled-resonator bandpass filters", style={'textAlign': 'center'}),
+        html.H1(children="Passband and Insertion loss calculator", style={'textAlign': 'center'}),
 
-        html.H3("Contour Plot for Filter Transmission"),
-        html.Label(children=["Enter the normalized bandwidth Δω/2r",html.Sub(children="o")," then press PLOT: "]),
+        html.H3("Peak Transmission Contours (v.s. passband shape & impedance match)"),
+        html.Label(children=["Normalized bandwidth Δω/2r",html.Sub(children="o")," = "]),
         dcc.Input(id="width", type="number", value=3), # should be half-width, just change from w/r0 to w/2r0
-        html.Button(id='plot-button-state', n_clicks=0, children='PLOT'),
+        html.Button(id='plot-button-state', n_clicks=0, children='Press to PLOT'),
         dcc.Graph(id="contour-graph"),
         html.Br(),
 
-        html.H3("Spectrum Optimization"),
-        html.Label(children=["Then specify EITHER (S, M) OR (r",html.Sub(children="e"),"/r",html.Sub(children="o"),", r",html.Sub(children="d"),"/r",html.Sub(children="o"),"):"]),
+        html.H3("Parameter Calculations"),
+        html.Label(children=["Specify EITHER (S, M) OR (r",html.Sub(children="e"),"/r",html.Sub(children="o"),", r",html.Sub(children="d"),"/r",html.Sub(children="o"),"):"]),
         html.Div([
             html.Div(children=[
-                html.Label("S : "),
+                html.Label("S = "),
                 dcc.Input(id="svalue", type="number", min=-0.9999999, max=1, value=0),
                 html.Br(),html.Br(),
                 html.Div(dcc.Slider(id="svalue_slider",step=0.001,min=-0.999,max=1,value=0,marks={-0.999:"-1",0:"0",1:"1"},updatemode="drag"),style={'width': '90%'}),
-                html.Label("M: "),
+                html.Label("M = "),
                 dcc.Input(id="mvalue", type="number", min=-0.9999999, max=1, value=0),
                 html.Br(),html.Br(),
                 html.Div(dcc.Slider(id="mvalue_slider",step=0.001,min=-0.999,max=1,value=0,marks={-0.999:"-1",0:"0",1:"1"},updatemode="drag"),style={'width': '90%'}),
@@ -72,13 +72,13 @@ app.layout = html.Div(
 
             html.Div(children=[
                 #dcc.Graph(id="illustration"),
-                html.Label(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o"),": "]),
+                html.Label(children=["r",html.Sub(children="e"),"/r",html.Sub(children="o")," = "]),
                 dcc.Input(id="revalue", type="number"),
                 html.Br(),html.Br(),html.Br(),
-                html.Label(children=["r",html.Sub(children="d"),"/r",html.Sub(children="o"),": "]),
+                html.Label(children=["r",html.Sub(children="d"),"/r",html.Sub(children="o")," = "]),
                 dcc.Input(id="rdvalue", type="number"),
                 html.Br(),html.Br(),html.Br(),
-                html.Label(children=[html.Span("µ"),"/r",html.Sub(children="o"),": ",html.Div(id="muvalue",style={"display": "inline-block"})]),
+                html.Label(children=[html.Span("µ"),"/r",html.Sub(children="o")," = ",html.Div(id="muvalue",style={"display": "inline-block"})]),
                 html.Br(),html.Br(),
                 html.Label("Graphical illustration: "),
                 dcc.Graph(id="illustration"),
