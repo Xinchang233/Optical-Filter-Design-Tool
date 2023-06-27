@@ -1,4 +1,4 @@
-# An App for Filter Design & Optimization
+# An App for Optical Filter Design & Optimization
 ### Introduction
 This app helps you extract the optimal design of filter, as illustrated in the paper (i.e. minimum insertion loss, optimal transfer function shape, etc.). It is constructed using [dash](https://dash.plotly.com), a Python library that supports interactive graphing. Most importantly, this app is farely easy to use. Though it is published as source codes, only few steps needs to be done for setup, which will be illustrated in the following section.
 
