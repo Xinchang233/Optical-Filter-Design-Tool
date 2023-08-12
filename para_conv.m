@@ -36,6 +36,7 @@ end
 
 if tag == 0;
     D = nan;
+    warning('Choosen parameters yeild an unphyscial result.')
 else
     D = 4*u^2*re*rd/(u^2+(re+1)*(rd+1))^2*ripple;
 end
