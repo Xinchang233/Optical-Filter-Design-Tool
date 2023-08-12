@@ -5,9 +5,7 @@ clc,clear;close all
 
 % please contact zhangxc@bu.edu if you have any question
 
-load('colors_prxd.mat'); % load color file
-color1 = xjcolor17(1,:);
-color3 = xjcolor17(3,:);
+color1 = [0.639215686274510	0.207843137254902	0.168627450980392];
 
 r0 = 1; % arbitrary value
 
@@ -63,7 +61,7 @@ plot([X1 X2],[Y1 Y2],'x','markersize',10,'linewidth',2,'Color',color1)
         plot([0 X1],[0 Y1],'--','LineWidth',1,'Color',color1);plot([0 X2],[0 Y2],'--','LineWidth',1,'Color',color1)
         axis equal; grid off;
         set(gca,'LineWidth',1.5,'XAxisLocation','origin','YAxisLocation','origin','Box','off','xtick',[],'ytick',[])
-        xlim([-abs(X1)/0.618 abs(X1)/0.618]); ylim([0 abs(Y1)*5])
+        xlim([-abs(X1)/0.618 abs(X1)/0.618]); ylim([0 abs(Y1)*2])
         xlabel('\itδω\rm_r','FontSize',16)
         ylabel('\itδω\rm_i','FontSize',16)
         title('Pole configuration (to scale)','FontSize',16)
