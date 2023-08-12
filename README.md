@@ -2,7 +2,9 @@
 ### Introduction
 This app helps you extract the optimal design of filter, as illustrated in the paper (i.e. minimum insertion loss, optimal transfer function shape, etc.). It is constructed using [dash](https://dash.plotly.com), a Python library that supports interactive graphing. Most importantly, this app is farely easy to use. Though it is published as source codes, only few steps needs to be done for setup, which will be illustrated in the following section.
 
-Currently, this interactive design tool (filter_visualization.py) supports the design with fixed 3-dB bandwidth with no passband ripple. For arbitrary fixed N-dB bandwidth as well as Chebyshev passband (with ripple), please use para_conv.m.
+Currently, this interactive design tool (filter_visualization.py) supports the design with fixed 3-dB bandwidth with no passband ripple.
+
+ For arbitrary fixed N-dB bandwidth as well as Chebyshev passband (with ripple), please use para_conv.m. example.m illustrate how to use para_conv.m step by step.
 
 ### Environment setup & Installation
 1. To make the code running, Python along with some affiliated packages needs to be installed on your own computer. This can be done easily with the help of [Anaconda](https://www.anaconda.com). To install it, follow the link and go to its official website and download the version corresponding to your operational system. It is same as installing any other software on your own machine.  
