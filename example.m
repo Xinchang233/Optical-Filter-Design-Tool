@@ -12,7 +12,7 @@ r0 = 1; % arbitrary value
 
 S = 0.2333; % Define passband shape
 M = 0; % Define impedance mismatch
-N = 10; % N value in "fixed N-dB bandwidth"
+N = 4; % N value in "fixed N-dB bandwidth"
 Bandwidth = 10; % Full or two-sided N-dB bandwidth
 B = Bandwidth/(2*r0); % Full or two-sided N-dB bandwidth normalized by 2r0
 
