@@ -6,6 +6,8 @@ Currently, this interactive design tool (filter_visualization.py) supports the d
 
  For arbitrary fixed N-dB bandwidth as well as Chebyshev passband (with ripple), please use para_conv.m. example.m illustrate how to use para_conv.m step by step.
 
+Two .lsm files are attached to this design tool for validation of the theory model, which shows a transmission spectrum has a satisfactory agreement between the simulated and theory results on passband shape, bandwidth, and absolute insertion loss.
+
 ### Environment setup & Installation
 1. To make the code running, Python along with some affiliated packages needs to be installed on your own computer. This can be done easily with the help of [Anaconda](https://www.anaconda.com). To install it, follow the link and go to its official website and download the version corresponding to your operational system. It is same as installing any other software on your own machine.  
 2. After sucessfully installing Anaconda, the environment should be set up properly automatically. Since the packages used in the code is usually preinstalled along with Anaconda.  
