@@ -17,3 +17,38 @@ references:
     issue: "13"
     year: 2024
     doi: "https://doi.org/10.1364/OL.525476"
+
+
+cff-version: 1.3.0
+message: "If you find this design tool useful, please cite the accompanying paper as follows."
+authors:
+- family-names: "Zhang"
+  given-names: "Xinchang"
+- family-names: "Singh"
+  given-names: "Manuj"
+- family-names: "Li"
+  given-names: "Dingning"
+- family-names: "Popović"
+  given-names: "Miloš A."
+title: "Optical filter design tool"
+url: "https://github.com/Xinchang233/Optical-Filter-Design-Tool"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Zhang"
+    given-names: "Xinchang"
+  - family-names: "Singh"
+    given-names: "Manuj"
+  - family-names: "Li"
+    given-names: "Dingning"
+  - family-names: "Popović"
+    given-names: "Miloš A."
+  doi: "10.1364/OL.525476"
+  journal: "Optics Letters"
+  # month: 7
+  # start: 1 # First page number
+  # end: 10 # Last page number
+  title: "Engineering the passband shape of coupled-cavity bandpass filters for low loss and/or narrow bandwidth"
+  issue: 49
+  volume: 13
+  year: 2024
