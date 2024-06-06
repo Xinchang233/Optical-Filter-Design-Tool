@@ -1,6 +1,10 @@
 # An App for Optical Filter Design & Optimization
 ### Introduction
-This app helps you extract the optimal design of filter, as illustrated in the paper (i.e. minimum insertion loss, optimal transfer function shape, etc.). It is constructed using [dash](https://dash.plotly.com), a Python library that supports interactive graphing. Most importantly, this app is farely easy to use. Though it is published as source codes, only few steps needs to be done for setup, which will be illustrated in the following section.
+This app helps you extract the optimal design of filter, as illustrated in the paper (i.e. minimum insertion loss, optimal transfer function shape, etc.).  You will need TWO parameters before you start: 1. the cavity loss Q or loss rate r0; 2. your desired 3-dB bandwidth.
+
+This tool well soon update a Matlab based GUI to implement the design functions for N-dB bandwidth input.
+
+It is constructed using [dash](https://dash.plotly.com), a Python library that supports interactive graphing. Most importantly, this app is farely easy to use. Though it is published as source codes, only few steps needs to be done for setup, which will be illustrated in the following section.
 
 Currently, this interactive design tool (filter_visualization.py) supports the design with fixed 3-dB bandwidth with no passband ripple.
 
