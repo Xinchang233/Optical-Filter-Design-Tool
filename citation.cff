@@ -1,25 +1,5 @@
-cff-version: 1.2.0
-message: "If you find this design tool useful, please cite the accompanying paper as follows."
-references:
-  - type: "article"
-    authors:
-      - family-names: "Zhang"
-        given-names: "Xinchang"
-      - family-names: "Singh"
-        given-names: "Manuj"
-      - family-names: "Li"
-        given-names: "Dingning"
-      - family-names: "Popović"
-        given-names: "Miloš A."
-    title: "Engineering the passband shape of coupled-cavity bandpass filters for low loss and/or narrow bandwidth"
-    journal: "Optics Letters"
-    volume: "49"
-    issue: "13"
-    year: 2024
-    doi: "https://doi.org/10.1364/OL.525476"
+cff-version: 1.2.1
 
-
-cff-version: 1.3.0
 message: "If you find this design tool useful, please cite the accompanying paper as follows."
 authors:
 - family-names: "Zhang"
